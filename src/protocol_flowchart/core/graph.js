@@ -82,6 +82,7 @@ export function addEdge(graph, fromId, toId, props = {}) {
       type:      props.arrowStyle?.type      ?? 'normal',
       thickness: props.arrowStyle?.thickness ?? 2,
       headSize:  props.arrowStyle?.headSize  ?? 10,
+      color:     props.arrowStyle?.color     ?? '#333333',
     },
   };
 

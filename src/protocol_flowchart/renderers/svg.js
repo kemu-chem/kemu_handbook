@@ -20,7 +20,7 @@ export function renderSVG(graph, opts = {}) {
   parts.push('<defs>');
   // Per-edge main arrow markers
   for (const edge of graph.edges) {
-    const color = edge.arrowStyle.type === 'dashed' ? '#666' : '#333';
+    const color = edge.arrowStyle.color ?? (edge.arrowStyle.type === 'dashed' ? '#666' : '#333');
     parts.push(arrowMarkerDef(`arrow-${edge.id}`, color, edge.arrowStyle.headSize, edge.arrowStyle.thickness));
     // Per-annotation arrow markers (color/size customisable)
     for (const item of (edge.annotations?.items ?? [])) {
@@ -100,7 +100,7 @@ function renderEdge(edge, from, to, markerId, fontFamily = 'sans-serif', pad = 8
   const parts = [];
   const { thickness, headSize, type } = edge.arrowStyle;
   const dashed = type === 'dashed' ? `stroke-dasharray="${headSize * 1.5} ${headSize}"` : '';
-  const color  = type === 'dashed' ? '#666' : '#333';
+  const color  = edge.arrowStyle.color ?? (type === 'dashed' ? '#666' : '#333');
 
   const path = edge.routing === 'orthogonal'
     ? orthogonalPath(from, to, pad)

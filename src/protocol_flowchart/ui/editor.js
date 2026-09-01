@@ -37,7 +37,10 @@ const jsonFileInput= document.getElementById('json-file-input');
 const snapStepInput= document.getElementById('snap-step');
 const gridSizeInput= document.getElementById('grid-size');
 const padInput     = document.getElementById('pad-input');
-const fontSelect   = document.getElementById('font-select');
+const fontSelect    = document.getElementById('font-select');
+const tbTextColor   = document.getElementById('tb-text-color');
+const tbFillColor   = document.getElementById('tb-fill-color');
+const tbArrowColor  = document.getElementById('tb-arrow-color');
 const inlineEdit    = document.getElementById('inline-edit');
 const inlineToolbar = document.getElementById('inline-toolbar');
 
@@ -595,6 +598,57 @@ svg.addEventListener('wheel', (e) => {
   redrawQuiet();
 }, { passive: false });
 
+// ── Toolbar color pickers ─────────────────────────────────────────────────────
+
+function updateToolbarColors() {
+  if (multiSelection.size >= 2) {
+    const n = graph.nodes.find(n => multiSelection.has(n.id));
+    if (n) { tbTextColor.value = n.style.borderColor ?? '#333333'; tbFillColor.value = n.style.fillColor ?? '#ffffff'; }
+    tbArrowColor.value = '#333333';
+  } else if (edgeMultiSel.size >= 2) {
+    const e = graph.edges.find(e => edgeMultiSel.has(e.id));
+    if (e) tbArrowColor.value = e.arrowStyle.color ?? '#333333';
+  } else if (selection?.type === 'node') {
+    const n = findNode(graph, selection.id);
+    if (n) { tbTextColor.value = n.style.borderColor ?? '#333333'; tbFillColor.value = n.style.fillColor ?? '#ffffff'; }
+  } else if (selection?.type === 'edge') {
+    const e = findEdge(graph, selection.id);
+    if (e) tbArrowColor.value = e.arrowStyle.color ?? '#333333';
+  }
+}
+
+function makeColorApplier(applyFn) {
+  let pushed = false;
+  return {
+    onInput(e) {
+      if (!pushed) { pushHistory(); pushed = true; }
+      applyFn(e.target.value);
+      redrawQuiet();
+    },
+    onChange() { pushed = false; redraw(); },
+  };
+}
+
+const _textColorH  = makeColorApplier(color => {
+  const ids = multiSelection.size >= 2 ? [...multiSelection] : (selection?.type === 'node' ? [selection.id] : []);
+  for (const id of ids) updateNode(graph, id, { style: { borderColor: color } });
+});
+const _fillColorH  = makeColorApplier(color => {
+  const ids = multiSelection.size >= 2 ? [...multiSelection] : (selection?.type === 'node' ? [selection.id] : []);
+  for (const id of ids) updateNode(graph, id, { style: { fillColor: color } });
+});
+const _arrowColorH = makeColorApplier(color => {
+  const ids = edgeMultiSel.size >= 2 ? [...edgeMultiSel] : (selection?.type === 'edge' ? [selection.id] : []);
+  for (const id of ids) updateEdge(graph, id, { arrowStyle: { color } });
+});
+
+tbTextColor.addEventListener('input',  e => _textColorH.onInput(e));
+tbTextColor.addEventListener('change', ()  => _textColorH.onChange());
+tbFillColor.addEventListener('input',  e => _fillColorH.onInput(e));
+tbFillColor.addEventListener('change', ()  => _fillColorH.onChange());
+tbArrowColor.addEventListener('input',  e => _arrowColorH.onInput(e));
+tbArrowColor.addEventListener('change', ()  => _arrowColorH.onChange());
+
 // ── Rendering ─────────────────────────────────────────────────────────────────
 
 function redraw() {
@@ -716,6 +770,7 @@ function redraw() {
   }, tStep, nodeDefaults);
 
   statusbar.textContent = `Nodes: ${graph.nodes.length} / Edges: ${graph.edges.length} | Zoom: ${Math.round(zoom * 100)}%`;
+  updateToolbarColors();
   scheduleSave();
 }
 
