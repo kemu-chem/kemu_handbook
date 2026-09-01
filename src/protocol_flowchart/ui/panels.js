@@ -211,6 +211,7 @@ function renderAnnotPanel(item, updateFn, tStep) {
           <input type="checkbox" name="annot-auto-scale" style="cursor:pointer;"> Auto-adjust
         </label>
       </div>`)}
+    ${field('Text Color',  colorEl('a-color', item.color ?? '#444444'))}
     ${field('Style', boldItalicBtns(item.fontWeight, item.fontStyle))}
   `;
   const labelEl = panelEl.querySelector('textarea[name="a-label"]');
@@ -240,6 +241,7 @@ function renderAnnotPanel(item, updateFn, tStep) {
   bind('input[name="a-arrowColor"]',    'input',  v => updateFn(item.id, { arrowColor:     v }));
   bind('input[name="a-arrowThickness"]','input',  v => { if (v) updateFn(item.id, { arrowThickness: Number(v) }); });
   bind('input[name="a-arrowHeadSize"]', 'input',  v => { if (v) updateFn(item.id, { arrowHeadSize:  Number(v) }); });
+  bind('input[name="a-color"]',         'input',  v => updateFn(item.id, { color: v }));
 }
 
 // ── Edge panel ────────────────────────────────────────────────────────────────
@@ -325,6 +327,7 @@ function renderEdgePanel(edge, updateFn, tStep, defaults = null) {
       fontSize:   defaults?.style?.fontSize    ?? 12,
       fontWeight: defaults?.style?.fontWeight  ?? 'normal',
       fontStyle:  defaults?.style?.fontStyle   ?? 'normal',
+      color:      defaults?.style?.borderColor ?? '#444444',
     };
     updateFn(edge.id, { annotations: { items: [...items, newItem] } });
   });

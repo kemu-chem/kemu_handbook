@@ -142,7 +142,7 @@ function renderAnnotationItem(item, edge, from, to, fontFamily = 'sans-serif', p
   const proxy = {
     label: item.label || ' ',
     shape: item.shape ?? 'none',
-    style: { borderColor: '#444', fillColor: '#f8f8f8', fontSize: item.fontSize ?? 12, fontWeight: item.fontWeight ?? 'normal', fontStyle: item.fontStyle ?? 'normal' },
+    style: { borderColor: item.color ?? '#444444', fillColor: '#f8f8f8', fontSize: item.fontSize ?? 12, fontWeight: item.fontWeight ?? 'normal', fontStyle: item.fontStyle ?? 'normal' },
     x: cx, y: cy,
   };
 

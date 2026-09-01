@@ -614,6 +614,10 @@ function updateToolbarColors() {
   } else if (selection?.type === 'edge') {
     const e = findEdge(graph, selection.id);
     if (e) tbArrowColor.value = e.arrowStyle.color ?? '#333333';
+  } else if (selection?.type === 'annot') {
+    const e = findEdge(graph, selection.edgeId);
+    const it = e?.annotations.items.find(i => i.id === selection.id);
+    if (it) tbTextColor.value = it.color ?? '#444444';
   }
 }
 
@@ -630,6 +634,14 @@ function makeColorApplier(applyFn) {
 }
 
 const _textColorH  = makeColorApplier(color => {
+  if (selection?.type === 'annot') {
+    const edge = findEdge(graph, selection.edgeId);
+    if (edge) {
+      const items = edge.annotations.items.map(it => it.id === selection.id ? { ...it, color } : it);
+      updateEdge(graph, edge.id, { annotations: { items } });
+    }
+    return;
+  }
   const ids = multiSelection.size >= 2 ? [...multiSelection] : (selection?.type === 'node' ? [selection.id] : []);
   for (const id of ids) updateNode(graph, id, { style: { borderColor: color } });
 });
